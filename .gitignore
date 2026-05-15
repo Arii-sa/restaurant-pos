@@ -1,0 +1,14 @@
+# Laravel
+backend/vendor/
+backend/.env
+backend/storage/logs/*.log
+
+# Next.js
+frontend/.next/
+frontend/node_modules/
+
+# Docker
+docker/mysql/data/
+
+# OS
+.DS_Store
