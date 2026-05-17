@@ -1,55 +1,102 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  app:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    volumes:
-      - ./backend:/var/www/html
-    depends_on:
-      - db
-    environment:
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_DATABASE=restaurant_pos
-      - DB_USERNAME=pos_user
-      - DB_PASSWORD=pos_password
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "8080:80"
-    volumes:
-      - ./backend:/var/www/html
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - app
-
-  db:
-    image: mysql:8.0
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_DATABASE: restaurant_pos
-      MYSQL_USER: pos_user
-      MYSQL_PASSWORD: pos_password
-      MYSQL_ROOT_PASSWORD: root_password
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
-
+  # Next.js フロントエンド
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    container_name: restaurant-pos-frontend
     ports:
       - "3000:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - /app/.next
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8080/api
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+    depends_on:
+      - app
+    networks:
+      - restaurant-pos-network
+
+  # Laravel バックエンド
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: restaurant-pos-app
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=mysql
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=restaurant_pos
+      - DB_USERNAME=pos_user
+      - DB_PASSWORD=pos_password
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - restaurant-pos-network
+
+  # Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: restaurant-pos-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - restaurant-pos-network
+
+  # MySQL データベース
+  db:
+    image: mysql:8.0
+    container_name: restaurant-pos-db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=restaurant_pos
+      - MYSQL_USER=pos_user
+      - MYSQL_PASSWORD=pos_password
+      - MYSQL_ROOT_PASSWORD=root_password
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - restaurant-pos-network
+
+  # phpMyAdmin（DB確認用）
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: restaurant-pos-phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=pos_user
+      - PMA_PASSWORD=pos_password
+    depends_on:
+      - db
+    networks:
+      - restaurant-pos-network
+
+networks:
+  restaurant-pos-network:
+    driver: bridge
 
 volumes:
   db_data:
