@@ -93,38 +93,24 @@ class ProductSeeder extends Seeder
             // ドリンク
             [
                 'category_id'     => $drink->id,
-                'name'            => 'コーラ（S）',
+                'name'            => 'コーラ',
                 'price'           => 200,
                 'is_available'    => true,
-                'is_customizable' => false,
-            ],
-            [
-                'category_id'     => $drink->id,
-                'name'            => 'コーラ（M）',
-                'price'           => 250,
-                'is_available'    => true,
-                'is_customizable' => false,
-            ],
-            [
-                'category_id'     => $drink->id,
-                'name'            => 'コーラ（L）',
-                'price'           => 300,
-                'is_available'    => true,
-                'is_customizable' => false,
+                'is_customizable' => true,
             ],
             [
                 'category_id'     => $drink->id,
                 'name'            => 'アイスコーヒー',
                 'price'           => 220,
                 'is_available'    => true,
-                'is_customizable' => false,
+                'is_customizable' => true,
             ],
             [
                 'category_id'     => $drink->id,
                 'name'            => 'オレンジジュース',
                 'price'           => 220,
                 'is_available'    => true,
-                'is_customizable' => false,
+                'is_customizable' => true,
             ],
 
             // デザート

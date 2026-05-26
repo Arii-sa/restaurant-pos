@@ -7,12 +7,13 @@ import { useRegister } from "@/features/register/hooks/useRegister";
 import { CategoryFilter } from "./CategoryFilter";
 import { ProductCard } from "./ProductCard";
 import { CartPanel } from "./CartPanel";
+import { CustomizeModal } from "./CustomizeModal";
 import { OrderConfirmModal } from "./OrderConfirmModal";
 import { PaymentModal } from "./PaymentModal";
 import { CompleteModal } from "./CompleteModal";
 import { LoadingSpinner } from "@/shared/components/LoadingSpinner";
 import { ErrorMessage } from "@/shared/components/ErrorMessage";
-import { Product, PaymentMethod } from "@/types";
+import { Product, CartItemOption, PaymentMethod } from "@/types";
 import { createOrder } from "@/lib/api/orders";
 
 export const RegisterPage = () => {
@@ -54,9 +55,25 @@ export const RegisterPage = () => {
   } = useRegister();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // カスタマイズモーダルで選択中の商品
+  const [customizingProduct, setCustomizingProduct] = useState<Product | null>(
+    null,
+  );
 
   const handleProductClick = (product: Product) => {
-    addToCart(product, []);
+    if (product.is_customizable && product.option_groups.length > 0) {
+      // カスタマイズ可能な商品はモーダルを開く
+      setCustomizingProduct(product);
+    } else {
+      // カスタマイズなしはそのままカートへ
+      addToCart(product, []);
+    }
+  };
+
+  const handleCustomizeAdd = (options: CartItemOption[]) => {
+    if (!customizingProduct) return;
+    addToCart(customizingProduct, options);
+    setCustomizingProduct(null);
   };
 
   const handleConfirmOrder = async () => {
@@ -134,6 +151,15 @@ export const RegisterPage = () => {
           onProceed={goToConfirm}
         />
       </div>
+
+      {/* カスタマイズモーダル */}
+      {customizingProduct && (
+        <CustomizeModal
+          product={customizingProduct}
+          onAdd={handleCustomizeAdd}
+          onClose={() => setCustomizingProduct(null)}
+        />
+      )}
 
       {/* 注文確認モーダル */}
       {step === "confirm" && (
