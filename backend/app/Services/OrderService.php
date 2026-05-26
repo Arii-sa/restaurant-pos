@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class OrderService
 {
-    // 注文一覧を新しい順で取得
     public function getAll(): Collection
     {
         return Order::with(['orderItems.product', 'orderItems.orderItemOptions.optionItem'])
@@ -17,11 +16,9 @@ class OrderService
             ->get();
     }
 
-    // 注文作成（トランザクション処理）
     public function create(array $data, int $userId): Order
     {
         return DB::transaction(function () use ($data, $userId) {
-            // 注文本体を作成
             $order = Order::create([
                 'user_id'        => $userId,
                 'order_type'     => $data['order_type'],
@@ -29,11 +26,10 @@ class OrderService
                 'customer_name'  => $data['customer_name'] ?? null,
                 'customer_phone' => $data['customer_phone'] ?? null,
                 'payment_method' => $data['payment_method'],
-                'status'         => 'pending',
+                'status'         => 'completed',
                 'total_amount'   => $data['total_amount'],
             ]);
 
-            // 注文明細を作成
             foreach ($data['items'] as $item) {
                 $orderItem = OrderItem::create([
                     'order_id'   => $order->id,
@@ -43,7 +39,6 @@ class OrderService
                     'subtotal'   => $item['subtotal'],
                 ]);
 
-                // カスタムオプションを保存
                 if (!empty($item['options'])) {
                     foreach ($item['options'] as $option) {
                         $orderItem->orderItemOptions()->create([
@@ -61,14 +56,12 @@ class OrderService
         });
     }
 
-    // 注文ステータス更新
     public function updateStatus(Order $order, string $status): Order
     {
         $order->update(['status' => $status]);
         return $order;
     }
 
-    // 日別売上取得
     public function getDailySales(string $date): array
     {
         $orders = Order::whereDate('ordered_at', $date)
@@ -76,15 +69,14 @@ class OrderService
             ->get();
 
         return [
-            'date'        => $date,
-            'total'       => $orders->sum('total_amount'),
-            'count'       => $orders->count(),
-            'by_payment'  => $orders->groupBy('payment_method')
+            'date'       => $date,
+            'total'      => $orders->sum('total_amount'),
+            'count'      => $orders->count(),
+            'by_payment' => $orders->groupBy('payment_method')
                 ->map(fn($group) => $group->sum('total_amount')),
         ];
     }
 
-    // 売上サマリー（週次・月次）
     public function getSalesSummary(string $period): array
     {
         $query = Order::where('status', 'completed');
@@ -102,10 +94,10 @@ class OrderService
         $orders = $query->get();
 
         return [
-            'period'      => $period,
-            'total'       => $orders->sum('total_amount'),
-            'count'       => $orders->count(),
-            'average'     => $orders->count() > 0
+            'period'  => $period,
+            'total'   => $orders->sum('total_amount'),
+            'count'   => $orders->count(),
+            'average' => $orders->count() > 0
                 ? round($orders->sum('total_amount') / $orders->count())
                 : 0,
         ];
