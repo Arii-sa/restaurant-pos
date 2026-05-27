@@ -1,3 +1,17 @@
+// ユーザー
+export type User = {
+  id: number;
+  name: string;
+  email: string;
+  role: "admin" | "staff";
+};
+
+// 認証レスポンス
+export type AuthResponse = {
+  user: User;
+  token: string;
+};
+
 export type Category = {
   id: number;
   name: string;
