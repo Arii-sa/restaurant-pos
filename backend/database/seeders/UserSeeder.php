@@ -11,17 +11,23 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // 管理者
-        User::create([
-            'name'     => '管理者',
-            'email'    => 'admin@restaurant.com',
-            'password' => Hash::make('password'),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@restaurant.com'],
+            [
+                'name'     => '管理者',
+                'password' => Hash::make('password'),
+                'role'     => 'admin',
+            ]
+        );
 
         // 店員
-        User::create([
-            'name'     => '店員A',
-            'email'    => 'staff@restaurant.com',
-            'password' => Hash::make('password'),
-        ]);
+        User::updateOrCreate(
+            ['email' => 'staff@restaurant.com'],
+            [
+                'name'     => '店員A',
+                'password' => Hash::make('password'),
+                'role'     => 'staff',
+            ]
+        );
     }
 }

@@ -1,5 +1,10 @@
+import { AuthGuard } from "@/features/auth/components/AuthGuard";
 import { RegisterPage } from "@/features/register/components/RegisterPage";
 
 export default function Home() {
-  return <RegisterPage />;
+  return (
+    <AuthGuard>
+      <RegisterPage />
+    </AuthGuard>
+  );
 }
