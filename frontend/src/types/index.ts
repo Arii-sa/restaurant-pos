@@ -1,17 +1,4 @@
-// ユーザー
-export type User = {
-  id: number;
-  name: string;
-  email: string;
-  role: "admin" | "staff";
-};
-
-// 認証レスポンス
-export type AuthResponse = {
-  user: User;
-  token: string;
-};
-
+// カテゴリ
 export type Category = {
   id: number;
   name: string;
@@ -74,7 +61,12 @@ export type OrderType = "dine_in" | "takeout";
 export type PaymentMethod = "cash" | "card" | "qr";
 
 // 注文ステータス
-export type OrderStatus = "pending" | "cooking" | "served" | "completed";
+export type OrderStatus =
+  | "pending"
+  | "cooking"
+  | "served"
+  | "completed"
+  | "cancelled";
 
 // 注文
 export type Order = {
@@ -86,6 +78,8 @@ export type Order = {
   customer_phone: string | null;
   payment_method: PaymentMethod;
   status: OrderStatus;
+  cancel_reason: string | null;
+  cancelled_at: string | null;
   total_amount: number;
   ordered_at: string;
   order_items: OrderItem[];
@@ -126,4 +120,18 @@ export type DailySales = {
   total: number;
   count: number;
   by_payment: Record<string, number>;
+};
+
+// ユーザー
+export type User = {
+  id: number;
+  name: string;
+  email: string;
+  role: "admin" | "staff";
+};
+
+// 認証レスポンス
+export type AuthResponse = {
+  user: User;
+  token: string;
 };

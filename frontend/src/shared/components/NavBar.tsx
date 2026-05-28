@@ -18,6 +18,7 @@ export const NavBar = () => {
 
   const links = [
     { href: "/", label: "🍔 レジ", adminOnly: false },
+    { href: "/orders", label: "📋 注文履歴", adminOnly: false },
     { href: "/admin", label: "🛠️ 商品管理", adminOnly: true },
     { href: "/sales", label: "📊 売上管理", adminOnly: true },
   ];
@@ -25,7 +26,6 @@ export const NavBar = () => {
   return (
     <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-6">
-        {/* isLoadingの間はリンクを表示しない */}
         {!isLoading &&
           links
             .filter((link) => !link.adminOnly || isAdmin)

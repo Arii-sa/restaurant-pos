@@ -16,23 +16,29 @@ class Order extends Model
         'customer_phone',
         'payment_method',
         'status',
+        'cancel_reason',
+        'cancelled_at',
         'total_amount',
         'ordered_at',
     ];
 
     protected $casts = [
-        'ordered_at' => 'datetime',
+        'ordered_at'   => 'datetime',
+        'cancelled_at' => 'datetime',
     ];
 
-    // 注文はユーザー（店員）に属する
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // 注文は複数の注文明細を持つ
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->status === 'cancelled';
     }
 }
