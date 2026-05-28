@@ -58,3 +58,14 @@ export const getSalesSummary = async (
   });
   return data;
 };
+
+// 注文キャンセル
+export const cancelOrder = async (
+  id: number,
+  cancelReason: string,
+): Promise<Order> => {
+  const { data } = await apiClient.post(`/api/orders/${id}/cancel`, {
+    cancel_reason: cancelReason,
+  });
+  return data;
+};

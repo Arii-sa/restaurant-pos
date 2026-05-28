@@ -14,25 +14,21 @@ class OrderController extends Controller
         private OrderService $orderService
     ) {}
 
-    // GET /api/orders
     public function index(): JsonResponse
     {
         $orders = $this->orderService->getAll();
         return response()->json($orders);
     }
 
-    // POST /api/orders
     public function store(StoreOrderRequest $request): JsonResponse
     {
         $order = $this->orderService->create(
             $request->validated(),
-            // 認証実装までは仮のユーザーID=1を使用
-            1
+            $request->user()->id
         );
         return response()->json($order, 201);
     }
 
-    // GET /api/orders/{id}
     public function show(Order $order): JsonResponse
     {
         return response()->json(
@@ -40,7 +36,6 @@ class OrderController extends Controller
         );
     }
 
-    // PATCH /api/orders/{id}/status
     public function updateStatus(Request $request, Order $order): JsonResponse
     {
         $request->validate([
@@ -50,14 +45,30 @@ class OrderController extends Controller
         return response()->json($order);
     }
 
-    // GET /api/sales/daily
+    // POST /api/orders/{id}/cancel
+    public function cancel(Request $request, Order $order): JsonResponse
+    {
+        $request->validate([
+            'cancel_reason' => ['required', 'string', 'max:255'],
+        ]);
+
+        try {
+            $order = $this->orderService->cancel(
+                $order,
+                $request->input('cancel_reason')
+            );
+            return response()->json($order);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
+        }
+    }
+
     public function dailySales(Request $request): JsonResponse
     {
         $date = $request->input('date', now()->toDateString());
         return response()->json($this->orderService->getDailySales($date));
     }
 
-    // GET /api/sales/summary
     public function salesSummary(Request $request): JsonResponse
     {
         $period = $request->input('period', 'month');

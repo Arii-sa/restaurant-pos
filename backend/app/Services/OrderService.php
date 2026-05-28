@@ -62,6 +62,22 @@ class OrderService
         return $order;
     }
 
+    // キャンセル処理
+    public function cancel(Order $order, string $reason): Order
+    {
+        if ($order->isCancelled()) {
+            throw new \Exception('すでにキャンセル済みの注文です');
+        }
+
+        $order->update([
+            'status'        => 'cancelled',
+            'cancel_reason' => $reason,
+            'cancelled_at'  => now(),
+        ]);
+
+        return $order;
+    }
+
     public function getDailySales(string $date): array
     {
         $orders = Order::whereDate('ordered_at', $date)
