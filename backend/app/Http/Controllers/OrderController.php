@@ -45,7 +45,6 @@ class OrderController extends Controller
         return response()->json($order);
     }
 
-    // POST /api/orders/{id}/cancel
     public function cancel(Request $request, Order $order): JsonResponse
     {
         $request->validate([
