@@ -15,10 +15,12 @@ export const NavBar = () => {
   };
 
   if (pathname === "/login") return null;
+  if (pathname === "/kitchen") return null;
 
   const links = [
     { href: "/", label: "🍔 レジ", adminOnly: false },
     { href: "/orders", label: "📋 注文履歴", adminOnly: false },
+    { href: "/kitchen", label: "🍳 キッチン", adminOnly: false },
     { href: "/admin", label: "🛠️ 商品管理", adminOnly: true },
     { href: "/sales", label: "📊 売上管理", adminOnly: true },
   ];

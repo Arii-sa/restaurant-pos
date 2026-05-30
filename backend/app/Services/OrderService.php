@@ -26,7 +26,7 @@ class OrderService
                 'customer_name'  => $data['customer_name'] ?? null,
                 'customer_phone' => $data['customer_phone'] ?? null,
                 'payment_method' => $data['payment_method'],
-                'status'         => 'completed',
+                'status'         => 'pending',
                 'total_amount'   => $data['total_amount'],
             ]);
 
@@ -62,7 +62,6 @@ class OrderService
         return $order;
     }
 
-    // キャンセル処理
     public function cancel(Order $order, string $reason): Order
     {
         if ($order->isCancelled()) {
@@ -80,8 +79,9 @@ class OrderService
 
     public function getDailySales(string $date): array
     {
+        // servedとcompletedを売上に含める
         $orders = Order::whereDate('ordered_at', $date)
-            ->where('status', 'completed')
+            ->whereIn('status', ['served', 'completed'])
             ->get();
 
         return [
@@ -95,7 +95,8 @@ class OrderService
 
     public function getSalesSummary(string $period): array
     {
-        $query = Order::where('status', 'completed');
+        // servedとcompletedを売上に含める
+        $query = Order::whereIn('status', ['served', 'completed']);
 
         if ($period === 'week') {
             $query->whereBetween('ordered_at', [
