@@ -79,7 +79,6 @@ class OrderService
 
     public function getDailySales(string $date): array
     {
-        // servedとcompletedを売上に含める
         $orders = Order::whereDate('ordered_at', $date)
             ->whereIn('status', ['served', 'completed'])
             ->get();
@@ -95,7 +94,6 @@ class OrderService
 
     public function getSalesSummary(string $period): array
     {
-        // servedとcompletedを売上に含める
         $query = Order::whereIn('status', ['served', 'completed']);
 
         if ($period === 'week') {
@@ -118,5 +116,57 @@ class OrderService
                 ? round($orders->sum('total_amount') / $orders->count())
                 : 0,
         ];
+    }
+
+    // 週次日別売上（offset: 0=今週, -1=先週, -2=先々週...）
+    public function getWeeklyChartData(int $weekOffset = 0): array
+    {
+        $days = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->addWeeks($weekOffset)->subDays($i);
+            $orders = Order::whereDate('ordered_at', $date)
+                ->whereIn('status', ['served', 'completed'])
+                ->get();
+
+            $days[] = [
+                'date'  => $date->format('m/d'),
+                'total' => $orders->sum('total_amount'),
+                'count' => $orders->count(),
+            ];
+        }
+        return $days;
+    }
+
+    // 月次週別売上（year・monthで指定）
+    public function getMonthlyChartData(int $year, int $month): array
+    {
+        $startOfMonth = now()->setYear($year)->setMonth($month)->startOfMonth();
+        $endOfMonth   = $startOfMonth->copy()->endOfMonth();
+        $weeks = [];
+        $week = 1;
+        $current = $startOfMonth->copy();
+
+        while ($current->lte($endOfMonth)) {
+            $startOfWeek = $current->copy();
+            $endOfWeek   = $current->copy()->addDays(6)->min($endOfMonth);
+
+            $orders = Order::whereBetween('ordered_at', [
+                $startOfWeek->startOfDay(),
+                $endOfWeek->endOfDay(),
+            ])
+                ->whereIn('status', ['served', 'completed'])
+                ->get();
+
+            $weeks[] = [
+                'date'  => $week . '週目',
+                'total' => $orders->sum('total_amount'),
+                'count' => $orders->count(),
+            ];
+
+            $current->addDays(7);
+            $week++;
+        }
+
+        return $weeks;
     }
 }

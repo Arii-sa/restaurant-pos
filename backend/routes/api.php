@@ -23,4 +23,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('sales/daily', [OrderController::class, 'dailySales']);
     Route::get('sales/summary', [OrderController::class, 'salesSummary']);
+    Route::get('sales/chart', [OrderController::class, 'chartData']);
 });
