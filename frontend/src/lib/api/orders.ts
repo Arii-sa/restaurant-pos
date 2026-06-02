@@ -41,6 +41,17 @@ export const updateOrderStatus = async (
   return data;
 };
 
+// 注文キャンセル
+export const cancelOrder = async (
+  id: number,
+  cancelReason: string,
+): Promise<Order> => {
+  const { data } = await apiClient.post(`/api/orders/${id}/cancel`, {
+    cancel_reason: cancelReason,
+  });
+  return data;
+};
+
 // 日別売上取得
 export const getDailySales = async (date: string): Promise<DailySales> => {
   const { data } = await apiClient.get("/api/sales/daily", {
@@ -59,13 +70,23 @@ export const getSalesSummary = async (
   return data;
 };
 
-// 注文キャンセル
-export const cancelOrder = async (
-  id: number,
-  cancelReason: string,
-): Promise<Order> => {
-  const { data } = await apiClient.post(`/api/orders/${id}/cancel`, {
-    cancel_reason: cancelReason,
+// 週次グラフデータ（weekOffset: 0=今週, -1=先週）
+export const getWeeklyChartData = async (
+  weekOffset: number,
+): Promise<{ date: string; total: number; count: number }[]> => {
+  const { data } = await apiClient.get("/api/sales/chart", {
+    params: { period: "week", week_offset: weekOffset },
+  });
+  return data;
+};
+
+// 月次グラフデータ（year・monthで指定）
+export const getMonthlyChartData = async (
+  year: number,
+  month: number,
+): Promise<{ date: string; total: number; count: number }[]> => {
+  const { data } = await apiClient.get("/api/sales/chart", {
+    params: { period: "month", year, month },
   });
   return data;
 };

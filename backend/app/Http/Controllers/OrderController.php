@@ -74,6 +74,22 @@ class OrderController extends Controller
         return response()->json($this->orderService->getSalesSummary($period));
     }
 
+    public function chartData(Request $request): JsonResponse
+    {
+        $period = $request->input('period', 'week');
+
+        if ($period === 'week') {
+            $weekOffset = (int) $request->input('week_offset', 0);
+            $data = $this->orderService->getWeeklyChartData($weekOffset);
+        } else {
+            $year  = (int) $request->input('year', now()->year);
+            $month = (int) $request->input('month', now()->month);
+            $data  = $this->orderService->getMonthlyChartData($year, $month);
+        }
+
+        return response()->json($data);
+    }
+
     public function update(): JsonResponse
     {
         return response()->json(['message' => 'Not implemented'], 501);
@@ -84,3 +100,4 @@ class OrderController extends Controller
         return response()->json(['message' => 'Not implemented'], 501);
     }
 }
+
