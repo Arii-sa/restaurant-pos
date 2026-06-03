@@ -26,7 +26,11 @@ class OrderController extends Controller
             $request->validated(),
             $request->user()->id
         );
-        return response()->json($order, 201);
+        $dailyNumber = $this->orderService->getDailyOrderNumber($order);
+        return response()->json([
+            'order'        => $order,
+            'daily_number' => $dailyNumber,
+        ], 201);
     }
 
     public function show(Order $order): JsonResponse
@@ -100,4 +104,3 @@ class OrderController extends Controller
         return response()->json(['message' => 'Not implemented'], 501);
     }
 }
-

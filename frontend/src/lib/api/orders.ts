@@ -25,7 +25,7 @@ export const createOrder = async (params: {
       price_diff: number;
     }[];
   }[];
-}): Promise<Order> => {
+}): Promise<{ order: Order; daily_number: number }> => {
   const { data } = await apiClient.post("/api/orders", params);
   return data;
 };
@@ -70,7 +70,7 @@ export const getSalesSummary = async (
   return data;
 };
 
-// 週次グラフデータ（weekOffset: 0=今週, -1=先週）
+// 週次グラフデータ
 export const getWeeklyChartData = async (
   weekOffset: number,
 ): Promise<{ date: string; total: number; count: number }[]> => {
@@ -80,7 +80,7 @@ export const getWeeklyChartData = async (
   return data;
 };
 
-// 月次グラフデータ（year・monthで指定）
+// 月次グラフデータ
 export const getMonthlyChartData = async (
   year: number,
   month: number,

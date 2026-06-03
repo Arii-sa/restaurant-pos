@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print\:px-4,
+  .print\:px-4 * {
+    visibility: visible;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+  }
+}

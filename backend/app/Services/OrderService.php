@@ -77,6 +77,15 @@ class OrderService
         return $order;
     }
 
+    // created_atを使って今日の何番目かを取得
+    public function getDailyOrderNumber(Order $order): int
+    {
+        return Order::whereDate('created_at', $order->created_at->toDateString())
+            ->where('id', '<=', $order->id)
+            ->whereNotIn('status', ['cancelled'])
+            ->count();
+    }
+
     public function getDailySales(string $date): array
     {
         $orders = Order::whereDate('ordered_at', $date)
@@ -118,7 +127,6 @@ class OrderService
         ];
     }
 
-    // 週次日別売上（offset: 0=今週, -1=先週, -2=先々週...）
     public function getWeeklyChartData(int $weekOffset = 0): array
     {
         $days = [];
@@ -137,7 +145,6 @@ class OrderService
         return $days;
     }
 
-    // 月次週別売上（year・monthで指定）
     public function getMonthlyChartData(int $year, int $month): array
     {
         $startOfMonth = now()->setYear($year)->setMonth($month)->startOfMonth();
