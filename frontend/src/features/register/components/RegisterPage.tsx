@@ -55,17 +55,16 @@ export const RegisterPage = () => {
   } = useRegister();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // カスタマイズモーダルで選択中の商品
+  const [completedOrderId, setCompletedOrderId] = useState<number | null>(null);
+  const [dailyOrderNumber, setDailyOrderNumber] = useState<number | null>(null);
   const [customizingProduct, setCustomizingProduct] = useState<Product | null>(
     null,
   );
 
   const handleProductClick = (product: Product) => {
     if (product.is_customizable && product.option_groups.length > 0) {
-      // カスタマイズ可能な商品はモーダルを開く
       setCustomizingProduct(product);
     } else {
-      // カスタマイズなしはそのままカートへ
       addToCart(product, []);
     }
   };
@@ -80,7 +79,7 @@ export const RegisterPage = () => {
     if (!paymentMethod || !orderType) return;
     setIsSubmitting(true);
     try {
-      await createOrder({
+      const result = await createOrder({
         order_type: orderType,
         table_number: tableNumber || undefined,
         customer_name: customerName || undefined,
@@ -98,6 +97,8 @@ export const RegisterPage = () => {
           })),
         })),
       });
+      setCompletedOrderId(result.order.id);
+      setDailyOrderNumber(result.daily_number);
       goToComplete();
     } catch {
       alert("注文の送信に失敗しました。もう一度お試しください。");
@@ -109,6 +110,8 @@ export const RegisterPage = () => {
   const handleComplete = () => {
     clearCart();
     reset();
+    setCompletedOrderId(null);
+    setDailyOrderNumber(null);
   };
 
   if (isLoading) return <LoadingSpinner />;
@@ -116,7 +119,6 @@ export const RegisterPage = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* 左側：商品選択エリア */}
       <div className="flex-1 flex flex-col overflow-hidden p-4 gap-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-800">🍔 レジ</h1>
@@ -141,7 +143,6 @@ export const RegisterPage = () => {
         </div>
       </div>
 
-      {/* 右側：カートエリア */}
       <div className="w-80 p-4">
         <CartPanel
           cart={cart}
@@ -152,7 +153,6 @@ export const RegisterPage = () => {
         />
       </div>
 
-      {/* カスタマイズモーダル */}
       {customizingProduct && (
         <CustomizeModal
           product={customizingProduct}
@@ -161,7 +161,6 @@ export const RegisterPage = () => {
         />
       )}
 
-      {/* 注文確認モーダル */}
       {step === "confirm" && (
         <OrderConfirmModal
           cart={cart}
@@ -179,7 +178,6 @@ export const RegisterPage = () => {
         />
       )}
 
-      {/* 支払いモーダル */}
       {step === "payment" && (
         <PaymentModal
           totalAmount={totalAmount}
@@ -193,12 +191,16 @@ export const RegisterPage = () => {
         />
       )}
 
-      {/* 完了モーダル */}
-      {step === "complete" && (
+      {step === "complete" && completedOrderId && (
         <CompleteModal
+          orderId={completedOrderId}
+          dailyOrderNumber={dailyOrderNumber ?? completedOrderId}
           orderType={orderType}
           tableNumber={tableNumber}
           customerName={customerName}
+          paymentMethod={paymentMethod}
+          cart={cart}
+          totalAmount={totalAmount}
           onClose={handleComplete}
         />
       )}

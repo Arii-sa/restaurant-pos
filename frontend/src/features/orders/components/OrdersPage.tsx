@@ -15,6 +15,23 @@ export const OrdersPage = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [cancellingOrder, setCancellingOrder] = useState<Order | null>(null);
 
+  // 注文が何日目の何番目かを計算
+  const getDailyNumber = (order: Order) => {
+    const orderDate = new Date(order.ordered_at).toDateString();
+    const sameDayOrders = orders
+      .filter(
+        (o) =>
+          new Date(o.ordered_at).toDateString() === orderDate &&
+          o.status !== "cancelled",
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.ordered_at).getTime() - new Date(b.ordered_at).getTime(),
+      );
+    const index = sameDayOrders.findIndex((o) => o.id === order.id);
+    return index + 1;
+  };
+
   const handleCancelClick = (order: Order) => {
     setSelectedOrder(null);
     setCancellingOrder(order);
@@ -56,6 +73,7 @@ export const OrdersPage = () => {
       {selectedOrder && (
         <OrderDetailModal
           order={selectedOrder}
+          dailyNumber={getDailyNumber(selectedOrder)}
           onClose={() => setSelectedOrder(null)}
           onCancel={handleCancelClick}
         />

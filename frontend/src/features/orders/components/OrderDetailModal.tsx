@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { Order } from "@/types";
 import { OrderStatusBadge } from "./OrderStatusBadge";
+import { OrderReceiptModal } from "./OrderReceiptModal";
 
 type Props = {
   order: Order;
+  dailyNumber: number;
   onClose: () => void;
   onCancel: (order: Order) => void;
 };
@@ -15,8 +18,24 @@ const PAYMENT_LABELS: Record<string, string> = {
   qr: "📱 QRコード決済",
 };
 
-export const OrderDetailModal = ({ order, onClose, onCancel }: Props) => {
+export const OrderDetailModal = ({
+  order,
+  dailyNumber,
+  onClose,
+  onCancel,
+}: Props) => {
+  const [showReceipt, setShowReceipt] = useState(false);
   const orderedAt = new Date(order.ordered_at).toLocaleString("ja-JP");
+
+  if (showReceipt) {
+    return (
+      <OrderReceiptModal
+        order={order}
+        dailyNumber={dailyNumber}
+        onClose={() => setShowReceipt(false)}
+      />
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -25,7 +44,7 @@ export const OrderDetailModal = ({ order, onClose, onCancel }: Props) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <h2 className="text-lg font-bold text-gray-800">
-                注文 #{order.id}
+                # {dailyNumber}
               </h2>
               <OrderStatusBadge status={order.status} />
             </div>
@@ -40,7 +59,6 @@ export const OrderDetailModal = ({ order, onClose, onCancel }: Props) => {
         </div>
 
         <div className="p-6 space-y-4">
-          {/* キャンセル情報 */}
           {order.status === "cancelled" && (
             <div className="bg-red-50 rounded-xl p-4 text-sm">
               <p className="font-medium text-red-600">キャンセル済み</p>
@@ -53,7 +71,6 @@ export const OrderDetailModal = ({ order, onClose, onCancel }: Props) => {
             </div>
           )}
 
-          {/* 注文情報 */}
           <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-500">注文タイプ</span>
@@ -87,7 +104,6 @@ export const OrderDetailModal = ({ order, onClose, onCancel }: Props) => {
             </div>
           </div>
 
-          {/* 注文明細 */}
           <div>
             <p className="font-medium text-gray-700 mb-3">注文内容</p>
             <div className="space-y-2">
@@ -100,7 +116,7 @@ export const OrderDetailModal = ({ order, onClose, onCancel }: Props) => {
                     <p className="font-medium text-gray-800">
                       {item.product?.name}
                       <span className="text-gray-400 ml-1">
-                        ×{item.quantity}
+                        x{item.quantity}
                       </span>
                     </p>
                     {item.order_item_options?.length > 0 && (
@@ -119,7 +135,6 @@ export const OrderDetailModal = ({ order, onClose, onCancel }: Props) => {
             </div>
           </div>
 
-          {/* 合計 */}
           <div className="flex justify-between items-center pt-2 border-t border-gray-100">
             <span className="font-bold text-gray-800">合計</span>
             <span
@@ -134,17 +149,27 @@ export const OrderDetailModal = ({ order, onClose, onCancel }: Props) => {
           </div>
         </div>
 
-        {/* キャンセルボタン（完了済みのみ表示） */}
-        {order.status !== "cancelled" && (
-          <div className="p-6 border-t border-gray-100">
+        <div className="p-6 border-t border-gray-100 space-y-3">
+          {/* レシートボタン */}
+          {order.status !== "cancelled" && (
+            <button
+              onClick={() => setShowReceipt(true)}
+              className="w-full py-3 border-2 border-gray-200 text-gray-600 font-medium rounded-xl hover:bg-gray-50 transition-colors"
+            >
+              🧾 レシートを見る・印刷する
+            </button>
+          )}
+
+          {/* キャンセルボタン */}
+          {order.status !== "cancelled" && (
             <button
               onClick={() => onCancel(order)}
               className="w-full py-3 border-2 border-red-400 text-red-500 font-medium rounded-xl hover:bg-red-50 transition-colors"
             >
               この注文をキャンセルする
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
