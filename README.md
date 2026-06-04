@@ -84,38 +84,38 @@
 
 ### フロントエンド（責務分離）
 
-\`\`\`
+```
 src/
-├── app/ # ルーティングのみ（page.tsxは薄く保つ）
-├── features/ # 機能単位で分割
-│ ├── register/ # レジ機能
-│ │ ├── components/ # UIコンポーネント
-│ │ ├── hooks/ # ロジック
-│ │ └── types/ # 型定義
-│ ├── kitchen/ # キッチンディスプレイ
-│ ├── orders/ # 注文履歴
-│ ├── admin/ # 管理者機能
-│ └── sales/ # 売上管理
-├── shared/ # 共通コンポーネント
-├── lib/ # API通信層
-└── types/ # 全体の型定義
-\`\`\`
+├── app/              # ルーティングのみ（page.tsxは薄く保つ）
+├── features/         # 機能単位で分割
+│   ├── register/     # レジ機能
+│   │   ├── components/  # UIコンポーネント
+│   │   ├── hooks/       # ロジック
+│   │   └── types/       # 型定義
+│   ├── kitchen/      # キッチンディスプレイ
+│   ├── orders/       # 注文履歴
+│   ├── admin/        # 管理者機能
+│   └── sales/        # 売上管理
+├── shared/           # 共通コンポーネント
+├── lib/              # API通信層
+└── types/            # 全体の型定義
+```
 
 ### バックエンド（責務分離）
 
-\`\`\`
+```
 app/
 ├── Http/
-│ ├── Controllers/ # 振り分けのみ・薄く保つ
-│ ├── Requests/ # FormRequestでバリデーション
-│ └── Resources/
-├── Services/ # ビジネスロジック集約
-│ ├── AuthService
-│ ├── CategoryService
-│ ├── ProductService
-│ └── OrderService（トランザクション・売上集計）
-└── Models/ # Eloquentリレーション
-\`\`\`
+│   ├── Controllers/  # 振り分けのみ・薄く保つ
+│   ├── Requests/     # FormRequestでバリデーション
+│   └── Resources/
+├── Services/         # ビジネスロジック集約
+│   ├── AuthService
+│   ├── CategoryService
+│   ├── ProductService
+│   └── OrderService（トランザクション・売上集計）
+└── Models/           # Eloquentリレーション
+```
 
 ## 🚀 環境構築
 
