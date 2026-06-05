@@ -89,7 +89,7 @@ export const SalesPage = () => {
               >
                 ←
               </button>
-              <span className="text-sm font-medium text-gray-700 min-w-[60px] text-center">
+              <span className="text-sm font-medium text-gray-700 min-w-15 text-center">
                 {weekLabel}
               </span>
               <button
@@ -121,7 +121,7 @@ export const SalesPage = () => {
               >
                 ←
               </button>
-              <span className="text-sm font-medium text-gray-700 min-w-[80px] text-center">
+              <span className="text-sm font-medium text-gray-700 min-w-20 text-center">
                 {monthLabel}
               </span>
               <button

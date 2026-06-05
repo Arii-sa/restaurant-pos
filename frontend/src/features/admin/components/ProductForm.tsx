@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import Image from "next/image";
 import { Category, Product } from "@/types";
 
 type Props = {
@@ -11,6 +12,7 @@ type Props = {
     name: string;
     price: number;
     is_customizable: boolean;
+    image?: File | null;
   }) => Promise<void>;
   onCancel: () => void;
 };
@@ -29,8 +31,13 @@ export const ProductForm = ({
   const [isCustomizable, setIsCustomizable] = useState(
     product?.is_customizable ?? false,
   );
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    product?.image_url ?? null,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
@@ -42,6 +49,31 @@ export const ProductForm = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        image: "画像サイズは2MB以内にしてください",
+      }));
+      return;
+    }
+
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+    setErrors((prev) => ({ ...prev, image: "" }));
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleSubmit = async () => {
     if (!validate()) return;
     setIsLoading(true);
@@ -51,6 +83,7 @@ export const ProductForm = ({
         name: name.trim(),
         price: Number(price),
         is_customizable: isCustomizable,
+        image: imageFile,
       });
     } finally {
       setIsLoading(false);
@@ -112,6 +145,48 @@ export const ProductForm = ({
         />
         {errors.price && (
           <p className="text-red-500 text-xs mt-1">{errors.price}</p>
+        )}
+      </div>
+
+      {/* 画像アップロード */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          商品画像（任意・2MB以内）
+        </label>
+        {imagePreview ? (
+          <div className="relative">
+            <Image
+              src={imagePreview}
+              alt="プレビュー"
+              className="w-full h-40 object-cover rounded-xl border border-gray-200"
+            />
+            <button
+              onClick={handleRemoveImage}
+              className="absolute top-2 right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors text-sm"
+            >
+              ✕
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full h-32 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-orange-400 hover:bg-orange-50 transition-colors"
+          >
+            <span className="text-2xl">📷</span>
+            <span className="text-sm text-gray-400">
+              クリックして画像を選択
+            </span>
+          </button>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="hidden"
+        />
+        {errors.image && (
+          <p className="text-red-500 text-xs mt-1">{errors.image}</p>
         )}
       </div>
 

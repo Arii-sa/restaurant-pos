@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Product, Category } from "@/types";
 import {
   getProducts,
@@ -9,6 +9,14 @@ import {
 } from "@/lib/api/products";
 import { getCategories } from "@/lib/api/categories";
 
+type ProductParams = {
+  category_id: number;
+  name: string;
+  price: number;
+  is_customizable: boolean;
+  image?: File | null;
+};
+
 export const useAdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -16,31 +24,7 @@ export const useAdminProducts = () => {
   const [error, setError] = useState<string | null>(null);
   const hasFetched = useRef(false);
 
-  useEffect(() => {
-    if (hasFetched.current) return;
-    hasFetched.current = true;
-
-    const load = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const [productsData, categoriesData] = await Promise.all([
-          getProducts(),
-          getCategories(),
-        ]);
-        setProducts(productsData);
-        setCategories(categoriesData);
-      } catch {
-        setError("データの取得に失敗しました");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    void load();
-  }, []);
-
-  const refetch = async () => {
+  const refetch = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -55,27 +39,20 @@ export const useAdminProducts = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleCreate = async (params: {
-    category_id: number;
-    name: string;
-    price: number;
-    is_customizable: boolean;
-  }) => {
+  useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+    void refetch();
+  }, [refetch]);
+
+  const handleCreate = async (params: ProductParams) => {
     await createProduct(params);
     await refetch();
   };
 
-  const handleUpdate = async (
-    id: number,
-    params: {
-      category_id: number;
-      name: string;
-      price: number;
-      is_customizable: boolean;
-    },
-  ) => {
+  const handleUpdate = async (id: number, params: ProductParams) => {
     await updateProduct(id, params);
     await refetch();
   };
