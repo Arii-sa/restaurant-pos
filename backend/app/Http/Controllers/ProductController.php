@@ -24,7 +24,15 @@ class ProductController extends Controller
     // POST /api/products
     public function store(StoreProductRequest $request): JsonResponse
     {
-        $product = $this->productService->create($request->validated());
+        $data = $request->validated();
+
+        // 画像アップロード処理
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $data['image_url'] = asset('storage/' . $path);
+        }
+
+        $product = $this->productService->create($data);
         return response()->json($product->load('category'), 201);
     }
 
@@ -39,7 +47,15 @@ class ProductController extends Controller
     // PUT /api/products/{id}
     public function update(StoreProductRequest $request, Product $product): JsonResponse
     {
-        $product = $this->productService->update($product, $request->validated());
+        $data = $request->validated();
+
+        // 画像アップロード処理
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $data['image_url'] = asset('storage/' . $path);
+        }
+
+        $product = $this->productService->update($product, $data);
         return response()->json($product);
     }
 
