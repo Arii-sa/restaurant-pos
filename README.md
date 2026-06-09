@@ -63,6 +63,7 @@
 ### 管理者機能（管理者のみ）
 
 - 商品の追加・編集・削除
+- 商品画像のアップロード
 - 在庫切れフラグの切り替え
 - カスタマイズオプションのSeeder管理
 
@@ -79,6 +80,22 @@
 - 管理者・店員のロール管理
 - 未認証時のリダイレクト
 - 店員は管理者画面・売上画面にアクセス不可
+
+## 🧪 テスト
+
+PHPUnitによるUnit Test・Feature Testを実装しています。
+
+```bash
+docker compose exec app php artisan test
+```
+
+| テスト種別   | ファイル         | テスト数             |
+| ------------ | ---------------- | -------------------- |
+| Unit Test    | OrderServiceTest | 5件                  |
+| Feature Test | AuthTest         | 5件                  |
+| Feature Test | ProductTest      | 5件                  |
+| Feature Test | OrderTest        | 6件                  |
+| 合計         |                  | 23件（59assertions） |
 
 ## 🏗️ 設計のこだわり
 
@@ -168,6 +185,10 @@ docker compose exec app php artisan db:seed
 | orders             | 注文（dine_in/takeout・ステータス管理）        |
 | order_items        | 注文明細                                       |
 | order_item_options | 注文明細のカスタマイズ（価格スナップショット） |
+
+## 🗄 ER図
+
+![ER図](ER.png)
 
 ## 📝 開発フロー
 
