@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: restaurant-pos-api
+    env: php
+    buildCommand: cd backend && composer install --no-dev --optimize-autoloader
+    startCommand: cd backend && php artisan serve --host=0.0.0.0 --port=$PORT
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        fromDatabase:
+          name: restaurant-pos-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: restaurant-pos-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: restaurant-pos-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: restaurant-pos-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: restaurant-pos-db
+          property: password
+
+databases:
+  - name: restaurant-pos-db
+    databaseName: restaurant_pos
+    user: pos_user
+    plan: free
