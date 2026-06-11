@@ -12,9 +12,6 @@ return new class extends Migration
             $table->string('cancel_reason')->nullable()->after('status');
             $table->timestamp('cancelled_at')->nullable()->after('cancel_reason');
         });
-
-        // statusのenum定義を変更
-        DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('pending','cooking','served','completed','cancelled') DEFAULT 'pending'");
     }
 
     public function down(): void
@@ -22,8 +19,5 @@ return new class extends Migration
         Schema::table('orders', function (Blueprint $table) {
             $table->dropColumn(['cancel_reason', 'cancelled_at']);
         });
-
-        DB::statement("ALTER TABLE orders MODIFY COLUMN status ENUM('pending','cooking','served','completed') DEFAULT 'pending'");
     }
 };
-
