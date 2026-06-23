@@ -14,29 +14,42 @@ class OptionGroupSeeder extends Seeder
         $burgers = Product::where('is_customizable', true)->get();
 
         foreach ($burgers as $burger) {
+
             // ピクルス
-            OptionGroup::create([
-                'product_id' => $burger->id,
-                'name'       => 'ピクルス',
-                'type'       => 'single',
-                'required'   => false,
-            ]);
+            OptionGroup::updateOrCreate(
+                [
+                    'product_id' => $burger->id,
+                    'name'       => 'ピクルス',
+                ],
+                [
+                    'type'       => 'single',
+                    'required'   => false,
+                ]
+            );
 
             // ソース
-            OptionGroup::create([
-                'product_id' => $burger->id,
-                'name'       => 'ソース',
-                'type'       => 'single',
-                'required'   => true,
-            ]);
+            OptionGroup::updateOrCreate(
+                [
+                    'product_id' => $burger->id,
+                    'name'       => 'ソース',
+                ],
+                [
+                    'type'       => 'single',
+                    'required'   => true,
+                ]
+            );
 
             // トッピング
-            OptionGroup::create([
-                'product_id' => $burger->id,
-                'name'       => 'トッピング',
-                'type'       => 'multi',
-                'required'   => false,
-            ]);
+            OptionGroup::updateOrCreate(
+                [
+                    'product_id' => $burger->id,
+                    'name'       => 'トッピング',
+                ],
+                [
+                    'type'       => 'multi',
+                    'required'   => false,
+                ]
+            );
         }
     }
 }
